@@ -18,24 +18,44 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view.
         
         self.view.addSubview(theScene)
-        theScene.frame = CGRect(x: 50, y: 150, width: 300, height: 500)
-        
-        theScene.clearColor = MTLClearColor(red: 0.9, green: 0.1, blue: 0.1, alpha: 1.0)
-        
-        theScene.delegate = renderer
     }
     
     var renderer: Renderer = Renderer()
     
-    var theScene: Scene = Scene(frame: .zero, device: sharedDevice)
+    lazy var theScene: Scene = {
+        let frame = CGRect(x: 50, y: 150, width: 300, height: 500)
+        let v = Scene(frame: frame, device: sharedDevice)
+        v.enableSetNeedsDisplay = true
+        v.delegate = renderer
+        v.addGestureRecognizer(panGesture)
+        return v
+    }()
 
+    // Gesture
+    lazy var panGesture: UIPanGestureRecognizer = {
+        return UIPanGestureRecognizer(target: self, action: #selector(panHandler(_:)))
+    }()
+    @objc func panHandler(_ g: UIPanGestureRecognizer) {
+        //
+        
+        let translation = g.translation(in: theScene)
 
+        renderer.center.x = Float(translation.x / 150)
+        renderer.center.y = -Float(translation.y / 250)
+        
+        renderer.createBuffers()
+        
+        theScene.setNeedsDisplay()
+    }
+    
 }
 
 class Scene: MTKView {
     
     override init(frame frameRect: CGRect, device: MTLDevice?) {
         super.init(frame: frameRect, device: device)
+        self.enableSetNeedsDisplay = true
+        self.clearColor = MTLClearColor(red: 0.9, green: 0.1, blue: 0.1, alpha: 1.0)
     }
     required init(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -73,12 +93,13 @@ class Renderer: NSObject, MTKViewDelegate {
     }
     
     // Data
-    let offset: Float = 0.9
-    lazy var vertices: [SIMD3<Float>] = [
-        .init( 0, offset, 0),
-        .init(-offset,-offset, 0),
-        .init( offset,-offset, 0)
-    ]
+    var center: SIMD2<Float> = .init(0, 0)
+    let offset: Float = 0.4
+    var vertices: [SIMD3<Float>] { [
+        .init(center.x          , center.y + offset, 0),
+        .init(center.x - offset , center.y - offset, 0),
+        .init(center.x + offset , center.y - offset, 0)
+    ] }
     
     var vertexBuffer: MTLBuffer!
     
