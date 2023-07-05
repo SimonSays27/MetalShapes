@@ -14,6 +14,7 @@
 		25D292F02A55AA3300222579 /* MetalShapeViews.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 25D292EE2A55AA3300222579 /* MetalShapeViews.xcdatamodeld */; };
 		25D292F22A55AA3400222579 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 25D292F12A55AA3400222579 /* Assets.xcassets */; };
 		25D292F52A55AA3400222579 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 25D292F32A55AA3400222579 /* LaunchScreen.storyboard */; };
+		25D292FD2A55B01D00222579 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 25D292FC2A55B01D00222579 /* Shaders.metal */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		25D292F12A55AA3400222579 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		25D292F42A55AA3400222579 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		25D292F62A55AA3400222579 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		25D292FC2A55B01D00222579 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +63,7 @@
 				25D292E52A55AA3300222579 /* AppDelegate.swift */,
 				25D292E72A55AA3300222579 /* SceneDelegate.swift */,
 				25D292E92A55AA3300222579 /* ViewController.swift */,
+				25D292FC2A55B01D00222579 /* Shaders.metal */,
 				25D292EB2A55AA3300222579 /* Main.storyboard */,
 				25D292F12A55AA3400222579 /* Assets.xcassets */,
 				25D292F32A55AA3400222579 /* LaunchScreen.storyboard */,
@@ -145,6 +148,7 @@
 				25D292E62A55AA3300222579 /* AppDelegate.swift in Sources */,
 				25D292F02A55AA3300222579 /* MetalShapeViews.xcdatamodeld in Sources */,
 				25D292E82A55AA3300222579 /* SceneDelegate.swift in Sources */,
+				25D292FD2A55B01D00222579 /* Shaders.metal in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
