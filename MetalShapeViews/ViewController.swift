@@ -23,7 +23,7 @@ class ViewController: UIViewController {
     var renderer: Renderer = Renderer()
     
     lazy var theScene: Scene = {
-        let frame = CGRect(x: 50, y: 150, width: 300, height: 500)
+        let frame = CGRect(x: 50, y: 200, width: 300, height: 500)
         let v = Scene(frame: frame, device: sharedDevice)
         v.enableSetNeedsDisplay = true
         v.delegate = renderer
@@ -55,7 +55,8 @@ class Scene: MTKView {
     override init(frame frameRect: CGRect, device: MTLDevice?) {
         super.init(frame: frameRect, device: device)
         self.enableSetNeedsDisplay = true
-        self.clearColor = MTLClearColor(red: 0.9, green: 0.1, blue: 0.1, alpha: 1.0)
+        self.clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 0) // MTLClearColor(red: 0.9, green: 0.1, blue: 0.1, alpha: 1.0)
+        self.isOpaque = false
     }
     required init(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -94,11 +95,11 @@ class Renderer: NSObject, MTKViewDelegate {
     
     // Data
     var center: SIMD2<Float> = .init(0, 0)
-    let offset: Float = 0.4
+    let offset: Float = 0.9
     var vertices: [SIMD3<Float>] { [
-        .init(center.x          , center.y + offset, 0),
-        .init(center.x - offset , center.y - offset, 0),
-        .init(center.x + offset , center.y - offset, 0)
+        .init(center.x          , center.y + offset , 0),
+        .init(center.x - offset , center.y - offset , 0),
+        .init(center.x + offset , center.y          , 0)
     ] }
     
     var vertexBuffer: MTLBuffer!
