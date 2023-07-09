@@ -108,31 +108,44 @@ vertex Rectangle basic_vertex_shader(constant float2 *vertices [[ buffer(0) ]],
     r.position = result;
     r.boundary = selfRect;
     r.canvas = canvasRect;
-    r.cornerRadius = 3;
+    r.cornerRadius = 30;
     
     return r;
 }
 
-fragment half4 basic_fragment_shader(Rectangle r [[ stage_in ]])
+fragment float4 basic_fragment_shader(Rectangle r [[ stage_in ]],
+                                     float2 pointCoord [[point_coord]])
 {
+    
+    float4 outColor = float4(0.6, 0.2, 0.1, 1.0);
+    
+    // todo: 3 is screen scale. should be dynamic
     
     float2 boxCenter = r.boundary.xy * 3 + r.boundary.zw * 3 / 2;
     float2 diff = r.position.xy - boxCenter;
     
-    // Topleft corner
-    if (diff.x < -120 && diff.y < -120) {
-        float calcX = 120 + diff.x;
-        float calcY = 120 + diff.y;
-        float length = sqrt(calcX * calcX + calcY * calcY);
-        if (length > 30) { discard_fragment(); }
+    float xThreshold = r.boundary.z * 3 / 2 - r.cornerRadius;
+    float yThreshold = r.boundary.w * 3 / 2 - r.cornerRadius;
+    
+    if (diff.x < -xThreshold && diff.y > -yThreshold) {
+        if (diff.x < -149) { outColor.a = 0.1; }
+        else if (diff.x < -148) { outColor.a = 0.6; }
+        else if (diff.x < -147) { outColor.a = 0.9; }
     }
     
-    // half theX = (r.boundary.x - r.boundary.z) * 3 - r.position.x;
-    // half theY = (r.boundary.y - r.boundary.w) * 3 - r.position.y;
-    // int sum = theX + theY;
-    // if (sum < 10) { discard_fragment(); }
+    // Topleft corner
+    else if (diff.x < -xThreshold && diff.y < -yThreshold) {
+        float calcX = xThreshold + diff.x;
+        float calcY = yThreshold + diff.y;
+        float length = sqrt(calcX * calcX + calcY * calcY);
+        if (length > (r.cornerRadius - 3)) {
+            float stepDiff = length - (r.cornerRadius - 3);
+            if (stepDiff > 3) { discard_fragment(); }
+            else { outColor.a = 1.0 - stepDiff / 3; }
+        }
+    }
     
-    return half4(0.6, 0.2, 0.1, 1.0);
+    return outColor;
     
     /** DRAWING HALF AND CHECKED*/
     // int theX = int(position.x);

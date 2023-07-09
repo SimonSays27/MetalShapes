@@ -18,6 +18,8 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view.
         
         self.view.addSubview(theScene)
+        
+        theScene.transform = CGAffineTransform(scaleX: 3, y: 3)
     }
     
     var renderer: Renderer = Renderer()
@@ -40,8 +42,8 @@ class ViewController: UIViewController {
         // TBD
         let center = g.location(in: theScene)
 
-        renderer.selfRect.x = 20 //Float(center.x) - 50;
-        renderer.selfRect.y = 20 //Float(center.y) + 50;
+        renderer.selfRect.x = Float(center.x) - 50;
+        renderer.selfRect.y = Float(center.y) - 50;
 
         theScene.setNeedsDisplay()
     }
@@ -53,7 +55,7 @@ class Scene: MTKView {
     override init(frame frameRect: CGRect, device: MTLDevice?) {
         super.init(frame: frameRect, device: device)
         self.enableSetNeedsDisplay = true
-        self.clearColor = MTLClearColor(red: 0, green: 0.1, blue: 0.1, alpha: 0.3) // MTLClearColor(red: 0.9, green: 0.1, blue: 0.1, alpha: 1.0)
+        self.clearColor = MTLClearColor(red: 0, green: 0.1, blue: 0.1, alpha: 0.1) // MTLClearColor(red: 0.9, green: 0.1, blue: 0.1, alpha: 1.0)
         self.isOpaque = false
     }
     required init(coder: NSCoder) {
@@ -81,6 +83,16 @@ class Renderer: NSObject, MTKViewDelegate {
         
         let descriptor = MTLRenderPipelineDescriptor()
         descriptor.colorAttachments[0].pixelFormat = sharedPixelFormat
+        descriptor.colorAttachments[0].isBlendingEnabled = true
+        
+        descriptor.colorAttachments[0].rgbBlendOperation = .add
+        descriptor.colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
+        descriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
+
+        descriptor.colorAttachments[0].alphaBlendOperation = .add
+        descriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
+        descriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
+        
         descriptor.vertexFunction = vertexFunction
         descriptor.fragmentFunction = fragmentFunction
         
@@ -103,7 +115,7 @@ class Renderer: NSObject, MTKViewDelegate {
     
     var canvasRect: SIMD4<Float> = .init(0, 0, 300, 500)
     
-    var selfRect: SIMD4<Float> = .init(40, 150, 100, 100)
+    var selfRect: SIMD4<Float> = .init(150, 150, 100, 100)
 
     
     var vertexBuffer: MTLBuffer!
@@ -124,20 +136,22 @@ class Renderer: NSObject, MTKViewDelegate {
               let renderPassDescriptor = view.currentRenderPassDescriptor
         else { return }
         
-        let commandBuffer = commandQueue.makeCommandBuffer()
-        let renderCommandEncoder = commandBuffer?.makeRenderCommandEncoder(descriptor: renderPassDescriptor)
-        renderCommandEncoder?.setRenderPipelineState(renderPipelineState)
+        guard let commandBuffer = commandQueue.makeCommandBuffer(),
+              let renderCommandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)
+        else { return }
+                
+        renderCommandEncoder.setRenderPipelineState(renderPipelineState)
         
-        renderCommandEncoder?.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
+        renderCommandEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
         
-        renderCommandEncoder?.setVertexBytes(&canvasRect, length: MemoryLayout<SIMD4<Float>>.stride, index: 1)
-        renderCommandEncoder?.setVertexBytes(&selfRect, length: MemoryLayout<SIMD4<Float>>.stride, index: 2)
+        renderCommandEncoder.setVertexBytes(&canvasRect, length: MemoryLayout<SIMD4<Float>>.stride, index: 1)
+        renderCommandEncoder.setVertexBytes(&selfRect, length: MemoryLayout<SIMD4<Float>>.stride, index: 2)
         
-        renderCommandEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: quadVertices.count)
-        renderCommandEncoder?.endEncoding()
+        renderCommandEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: quadVertices.count)
+        renderCommandEncoder.endEncoding()
         
-        commandBuffer?.present(drawable)
-        commandBuffer?.commit()
+        commandBuffer.present(drawable)
+        commandBuffer.commit()
         
     }
 }
