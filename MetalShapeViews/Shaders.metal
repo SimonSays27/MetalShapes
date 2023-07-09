@@ -118,14 +118,14 @@ fragment half4 basic_fragment_shader(Rectangle r [[ stage_in ]])
     
     float2 boxCenter = r.boundary.xy * 3 + r.boundary.zw * 3 / 2;
     float2 diff = r.position.xy - boxCenter;
-        
-    float length = sqrt(diff.x * diff.x + diff.y * diff.y);
-    if (length > 90) { discard_fragment(); }
     
-//    if (abs(diff.x) > 120 && abs(diff.y) > 120) {
-//        float length = sqrt(diff.x * diff.x + diff.y * diff.y);
-//        if (length > 120) { discard_fragment(); }
-//    }
+    // Topleft corner
+    if (diff.x < -120 && diff.y < -120) {
+        float calcX = 120 + diff.x;
+        float calcY = 120 + diff.y;
+        float length = sqrt(calcX * calcX + calcY * calcY);
+        if (length > 30) { discard_fragment(); }
+    }
     
     // half theX = (r.boundary.x - r.boundary.z) * 3 - r.position.x;
     // half theY = (r.boundary.y - r.boundary.w) * 3 - r.position.y;
