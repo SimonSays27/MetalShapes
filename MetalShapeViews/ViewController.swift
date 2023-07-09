@@ -37,14 +37,12 @@ class ViewController: UIViewController {
     }()
     @objc func panHandler(_ g: UIPanGestureRecognizer) {
         //
-        
-        let translation = g.translation(in: theScene)
+        // TBD
+        let center = g.location(in: theScene)
 
-        renderer.center.x = Float(translation.x / 150)
-        renderer.center.y = -Float(translation.y / 250)
-        
-        renderer.createBuffers()
-        
+        renderer.selfRect.x = 20 //Float(center.x) - 50;
+        renderer.selfRect.y = 20 //Float(center.y) + 50;
+
         theScene.setNeedsDisplay()
     }
     
@@ -55,7 +53,7 @@ class Scene: MTKView {
     override init(frame frameRect: CGRect, device: MTLDevice?) {
         super.init(frame: frameRect, device: device)
         self.enableSetNeedsDisplay = true
-        self.clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 0) // MTLClearColor(red: 0.9, green: 0.1, blue: 0.1, alpha: 1.0)
+        self.clearColor = MTLClearColor(red: 0, green: 0.1, blue: 0.1, alpha: 0.3) // MTLClearColor(red: 0.9, green: 0.1, blue: 0.1, alpha: 1.0)
         self.isOpaque = false
     }
     required init(coder: NSCoder) {
@@ -94,19 +92,25 @@ class Renderer: NSObject, MTKViewDelegate {
     }
     
     // Data
-    var center: SIMD2<Float> = .init(0, 0)
-    let offset: Float = 0.9
-    var vertices: [SIMD3<Float>] { [
-        .init(center.x          , center.y + offset , 0),
-        .init(center.x - offset , center.y - offset , 0),
-        .init(center.x + offset , center.y          , 0)
-    ] }
+    var quadVertices: [SIMD2<Float>] = [
+        .init(-1,-1),
+        .init( 1,-1),
+        .init( 1, 1),
+        .init( 1, 1),
+        .init(-1, 1),
+        .init(-1,-1)
+    ]
+    
+    var canvasRect: SIMD4<Float> = .init(0, 0, 300, 500)
+    
+    var selfRect: SIMD4<Float> = .init(40, 150, 100, 100)
+
     
     var vertexBuffer: MTLBuffer!
     
     func createBuffers() {
-        vertexBuffer = sharedDevice.makeBuffer(bytes: vertices,
-                                               length: MemoryLayout<SIMD3<Float>>.stride * vertices.count)
+        vertexBuffer = sharedDevice.makeBuffer(bytes: quadVertices,
+                                               length: MemoryLayout<SIMD2<Float>>.stride * quadVertices.count)
     }
     
     /// Render
@@ -126,7 +130,10 @@ class Renderer: NSObject, MTKViewDelegate {
         
         renderCommandEncoder?.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
         
-        renderCommandEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertices.count)
+        renderCommandEncoder?.setVertexBytes(&canvasRect, length: MemoryLayout<SIMD4<Float>>.stride, index: 1)
+        renderCommandEncoder?.setVertexBytes(&selfRect, length: MemoryLayout<SIMD4<Float>>.stride, index: 2)
+        
+        renderCommandEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: quadVertices.count)
         renderCommandEncoder?.endEncoding()
         
         commandBuffer?.present(drawable)
