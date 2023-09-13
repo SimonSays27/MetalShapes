@@ -114,34 +114,38 @@ vertex Rectangle basic_vertex_shader(constant float2 *vertices [[ buffer(0) ]],
 }
 
 fragment float4 basic_fragment_shader(Rectangle r [[ stage_in ]],
-                                     float2 pointCoord [[point_coord]])
+                                      float2 pointCoord [[point_coord]])
 {
     
     float4 outColor = float4(0.6, 0.2, 0.1, 1.0);
     
     // todo: 3 is screen scale. should be dynamic
     
-    float2 boxCenter = r.boundary.xy * 3 + r.boundary.zw * 3 / 2;
+    float2 boxCenter = 3 * (r.boundary.xy + r.boundary.zw / 2);
     float2 diff = r.position.xy - boxCenter;
     
     float xThreshold = r.boundary.z * 3 / 2 - r.cornerRadius;
     float yThreshold = r.boundary.w * 3 / 2 - r.cornerRadius;
     
+    // Left Side
     if (diff.x < -xThreshold && diff.y > -yThreshold) {
         if (diff.x < -149) { outColor.a = 0.1; }
         else if (diff.x < -148) { outColor.a = 0.6; }
         else if (diff.x < -147) { outColor.a = 0.9; }
     }
     
-    // Topleft corner
+    // Top-Left Corner
     else if (diff.x < -xThreshold && diff.y < -yThreshold) {
         float calcX = xThreshold + diff.x;
         float calcY = yThreshold + diff.y;
         float length = sqrt(calcX * calcX + calcY * calcY);
-        if (length > (r.cornerRadius - 3)) {
-            float stepDiff = length - (r.cornerRadius - 3);
-            if (stepDiff > 3) { discard_fragment(); }
-            else { outColor.a = 1.0 - stepDiff / 3; }
+        
+        float pixelCount = 3;
+        
+        if (length > (r.cornerRadius - pixelCount)) {
+            float stepDiff = length - (r.cornerRadius - pixelCount);
+            if (stepDiff > pixelCount) { discard_fragment(); }
+            else { outColor.a = 1.0 - stepDiff / pixelCount; }
         }
     }
     

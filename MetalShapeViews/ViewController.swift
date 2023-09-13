@@ -19,7 +19,7 @@ class ViewController: UIViewController {
         
         self.view.addSubview(theScene)
         
-        theScene.transform = CGAffineTransform(scaleX: 3, y: 3)
+        theScene.transform = CGAffineTransform(scaleX: 5, y: 5)
     }
     
     var renderer: Renderer = Renderer()
